@@ -1,7 +1,4 @@
 streamlit 
 mysql-connector-python
-tempfile
 pandas
 matplotlib
-seaborn
-datetime
