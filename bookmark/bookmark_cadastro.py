@@ -2,20 +2,32 @@ import streamlit as st
 import mysql.connector
 
 # Conexão com o banco de dados
+import streamlit as st
+import mysql.connector
+import tempfile
+
 def conectar_banco():
+    # Verifica se a conexão já existe e está ativa
     if "conn" not in st.session_state or not st.session_state.conn.is_connected():
+        # Salvar o certificado `ca.pem` em um arquivo temporário
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+            ssl_cert_path = tmp_file.name
+        
+        # Criar conexão com o banco de dados usando os secrets
         conn = mysql.connector.connect(
-            host='localhost', 
-            user='root', 
-            password='1234',
-            port=3306, 
-            database='censo_escolar'
+            host=st.secrets["DB_HOST"],
+            port=st.secrets["DB_PORT"],
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            database=st.secrets["DB_NAME"],
+            ssl_ca=["DB_SSL"]
         )
-        # Armazena a conexão no estado da sessão
+        
         st.session_state.conn = conn
+    
     return st.session_state.conn
 
-# Função para obter as escolas
 def obter_escolas():
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -32,7 +44,6 @@ def obter_escolas():
     
     return escolas
 
-# Função para cadastrar o bookmark
 def cadastrar_bookmark(id_usuario, id_escola, descricao):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -48,26 +59,22 @@ def cadastrar_bookmark(id_usuario, id_escola, descricao):
     finally:
         cursor.close()
 
-# Função para exibir o formulário de bookmark
 def pagina_bookmark():
     if "logado" in st.session_state and st.session_state["logado"]:
         st.title("Cadastrar Bookmark")
         
-        # Obter as escolas para o dropdown
         escolas = obter_escolas()
         
-        # Verifica se a consulta retornou escolas
         if escolas:
-            lista_escolas = [escola[1] for escola in escolas]  # Obtém apenas os nomes das escolas
+            lista_escolas = [escola[1] for escola in escolas]
             escola_selecionada = st.selectbox("Selecione a Escola:", lista_escolas)
             
             descricao = st.text_area("Descrição do Bookmark:")
             
             if st.button("Cadastrar"):
-                # Verifica se a descrição e escola foram preenchidas
                 if escola_selecionada and descricao:
-                    id_escola = escolas[lista_escolas.index(escola_selecionada)][0]  # Obtém o CO_ENTIDADE correspondente
-                    id_usuario = st.session_state["user_id"]  # Pega o ID do usuário logado
+                    id_escola = escolas[lista_escolas.index(escola_selecionada)][0]
+                    id_usuario = st.session_state["user_id"] 
                     cadastrar_bookmark(id_usuario, id_escola, descricao)
                 else:
                     st.warning("Preencha todos os campos!")
@@ -76,12 +83,10 @@ def pagina_bookmark():
     else:
         st.error("Você precisa estar logado para acessar esta página.")
 
-# Função principal para controlar a navegação
 def pagina_principal():
     if "logado" in st.session_state and st.session_state["logado"]:
-        pagina_bookmark()  # Exibe a página de cadastro de bookmark
+        pagina_bookmark() 
     else:
         st.error("Você precisa estar logado para acessar os bookmarks.")
 
-# Controla a navegação
 pagina_principal()

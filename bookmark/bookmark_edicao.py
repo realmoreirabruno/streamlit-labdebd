@@ -2,20 +2,32 @@ import streamlit as st
 import mysql.connector
 
 # Conexão com o banco de dados
+import streamlit as st
+import mysql.connector
+import tempfile
+
 def conectar_banco():
+    # Verifica se a conexão já existe e está ativa
     if "conn" not in st.session_state or not st.session_state.conn.is_connected():
+        # Salvar o certificado `ca.pem` em um arquivo temporário
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+            ssl_cert_path = tmp_file.name
+        
+        # Criar conexão com o banco de dados usando os secrets
         conn = mysql.connector.connect(
-            host='localhost', 
-            user='root', 
-            password='1234',
-            port=3306, 
-            database='censo_escolar'
+            host=st.secrets["DB_HOST"],
+            port=st.secrets["DB_PORT"],
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            database=st.secrets["DB_NAME"],
+            ssl_ca=["DB_SSL"]
         )
-        # Armazena a conexão no estado da sessão
+        
         st.session_state.conn = conn
+    
     return st.session_state.conn
 
-# Função para obter os bookmarks do usuário
 def obter_bookmarks_usuario(id_usuario):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -31,7 +43,6 @@ def obter_bookmarks_usuario(id_usuario):
     
     return bookmarks
 
-# Função para editar o bookmark
 def editar_bookmark(id_bookmark, nova_descricao):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -46,7 +57,6 @@ def editar_bookmark(id_bookmark, nova_descricao):
     finally:
         cursor.close()
 
-# Função para excluir o bookmark
 def excluir_bookmark(id_bookmark):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -61,17 +71,14 @@ def excluir_bookmark(id_bookmark):
     finally:
         cursor.close()
 
-# Função para exibir os bookmarks e permitir edição/exclusão
 def pagina_editar_excluir_bookmarks():
     if "logado" in st.session_state and st.session_state["logado"]:
         st.title("Editar/Excluir Bookmarks")
         
         id_usuario = st.session_state["user_id"]
         
-        # Obter os bookmarks do usuário
         bookmarks = obter_bookmarks_usuario(id_usuario)
         
-        # Verifica se existem bookmarks
         if bookmarks:
             for bookmark in bookmarks:
                 bookmark_id = bookmark[0]
@@ -81,29 +88,25 @@ def pagina_editar_excluir_bookmarks():
                 st.subheader(f"Bookmark: {descricao}")
                 st.write(f"ID Escola: {id_escola}")
                 
-                # Opção de editar a descrição do bookmark
                 nova_descricao = st.text_input(f"Nova Descrição para o Bookmark {descricao}", descricao)
                 if st.button(f"Salvar Alterações para o Bookmark {descricao}"):
                     if nova_descricao != descricao:
                         editar_bookmark(bookmark_id, nova_descricao)
                 
-                # Opção de excluir o bookmark
                 if st.button(f"Excluir o Bookmark {descricao}"):
                     excluir_bookmark(bookmark_id)
                 
-                st.markdown("---")  # Separador entre os bookmarks
+                st.markdown("---")
                 
         else:
             st.write("Você não tem bookmarks criados.")
     else:
         st.error("Você precisa estar logado para acessar esta página.")
 
-# Função principal para controlar a navegação
 def pagina_principal():
     if "logado" in st.session_state and st.session_state["logado"]:
-        pagina_editar_excluir_bookmarks()  # Exibe a página de editar/excluir bookmarks
+        pagina_editar_excluir_bookmarks()
     else:
         st.error("Você precisa estar logado para acessar os bookmarks.")
 
-# Controla a navegação
 pagina_principal()

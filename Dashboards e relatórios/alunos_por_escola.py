@@ -1,15 +1,22 @@
 import streamlit as st
 import pandas as pd
-import mysql.connector  # Substitua pelo conector do seu banco de dados
+import mysql.connector 
 import matplotlib.pyplot as plt
 
-# Configurar a conexão com o banco de dados
 def get_connection():
+    # Salvar o certificado `ca.pem` em um arquivo temporário
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+        ssl_cert_path = tmp_file.name
+
+    # Criar conexão usando os secrets e o certificado SSL
     return mysql.connector.connect(
-        host="localhost",  # Ajuste para o host do seu banco
-        user="root",       # Usuário do banco
-        password="1234",   # Senha do banco
-        database="censo_escolar"  # Nome do banco de dados
+        host=st.secrets["DB_HOST"],
+        port=st.secrets["DB_PORT"],
+        user=st.secrets["DB_USER"],
+        password=st.secrets["DB_PASSWORD"],
+        database=st.secrets["DB_NAME"],
+        ssl_ca=["DB_SSL"]
     )
 
 # Query para obter os dados

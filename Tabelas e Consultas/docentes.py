@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# Criação do Radio para escolher a tabela a ser exibida
 menu = st.radio("Escolha uma visualização", ["Turmas por Escola", "Professores e Alunos por Escola"])
 
 if "conn" in st.session_state and st.session_state.conn:
@@ -38,7 +37,6 @@ if "conn" in st.session_state and st.session_state.conn:
             """
             turmas_df = pd.read_sql(turmas_query, con=st.session_state.conn)
 
-            # Exibe os dados
             if not turmas_df.empty:
                 st.write(f"Turmas e disciplinas da escola: **{escola_selecionada}**")
                 st.dataframe(turmas_df)
@@ -85,7 +83,6 @@ if "conn" in st.session_state and st.session_state.conn:
             """
             alunos_df = pd.read_sql(alunos_query, con=st.session_state.conn)
 
-            # Exibe os dados
             st.write(f"Professores e alunos da escola: **{escola_selecionada}**")
 
             col1, col2 = st.columns(2)

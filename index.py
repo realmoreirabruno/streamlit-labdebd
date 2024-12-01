@@ -1,24 +1,35 @@
 import streamlit as st
 import mysql.connector
 
-# Configuração da página
 st.set_page_config(page_title="Login", initial_sidebar_state="collapsed")
 
-# Conexão com o banco de dados
+import streamlit as st
+import mysql.connector
+import tempfile
+
 def conectar_banco():
+    # Verifica se a conexão já existe e está ativa
     if "conn" not in st.session_state or not st.session_state.conn.is_connected():
+        # Salvar o certificado `ca.pem` em um arquivo temporário
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+            ssl_cert_path = tmp_file.name
+        
+        # Criar conexão com o banco de dados usando os secrets
         conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='1234',
-            port=3306,
-            database='censo_escolar'
+            host=st.secrets["DB_HOST"],
+            port=st.secrets["DB_PORT"],
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            database=st.secrets["DB_NAME"],
+            ssl_ca=["DB_SSL"]
         )
-        # Armazena a conexão no estado da sessão
+        
         st.session_state.conn = conn
+    
     return st.session_state.conn
 
-# Função para validar login
+
 def validar_login(email, senha):
     conn = conectar_banco()
     cursor = conn.cursor()
@@ -30,9 +41,8 @@ def validar_login(email, senha):
     
     cursor.close()
     
-    return resultado  # Retorna o ID e o nome do usuário, ou None se inválido
+    return resultado
 
-# Página de login
 def pagina_login():
     if "logado" not in st.session_state or not st.session_state["logado"]:
         st.title("Login")
@@ -44,21 +54,18 @@ def pagina_login():
             usuario = validar_login(email, senha)
             if usuario:
                 user_id, nome = usuario
-                # Atualiza o estado para refletir que o login foi bem-sucedido
                 st.session_state["logado"] = True
                 st.session_state["nome_usuario"] = nome
                 st.session_state["user_id"] = user_id
                 st.success(f"Bem-vindo, {nome}!")
-                return True  # Retorna que o login foi bem-sucedido
+                return True
             else:
                 st.error("Email ou senha inválidos!")
                 return False  
     return False  
 
-# Exibe o menu de navegação após o login
 def exibir_menu():
     if "logado" in st.session_state and st.session_state["logado"]:
-        # Exibe o menu de navegação baseado na autenticação
         pg = st.navigation(
             {
                 "Usuários": [
@@ -79,16 +86,15 @@ def exibir_menu():
                 ],
             }
         )
-        pg.run()  # Executa o menu de navegação
+        pg.run()
 
 # Página principal (após login)
 def pagina_principal():
     if "logado" in st.session_state and st.session_state["logado"]:
         st.write(f"Bem-vindo, {st.session_state['nome_usuario']}!")
-        exibir_menu()  # Exibe o menu após login
+        exibir_menu()
     else:
-        if pagina_login():  # Se o login for bem-sucedido, exibe o menu
+        if pagina_login(): 
             exibir_menu()
 
-# Chama a função para exibir a página principal
 pagina_principal()
