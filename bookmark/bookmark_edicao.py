@@ -17,7 +17,7 @@ def conectar_banco():
         # Criar conexão com o banco de dados usando os secrets
         conn = mysql.connector.connect(
             host=st.secrets["DB_HOST"],
-            port=st.secrets["DB_PORT"],
+            port=int(st.secrets["DB_PORT"]),
             user=st.secrets["DB_USER"],
             password=st.secrets["DB_PASSWORD"],
             database=st.secrets["DB_NAME"],
