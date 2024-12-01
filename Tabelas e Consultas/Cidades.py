@@ -4,7 +4,7 @@ import pandas as pd
 if "conn" in st.session_state and st.session_state.conn:
     try:
         query = """
-       SELECT * FROM censo_escolar.resumo_alunos_escola
+        SELECT * FROM censo_escolar.resumo_alunos_escola
         ORDER BY Nome_Escola;
         """
         
