@@ -5,11 +5,12 @@ import mysql.connector
 def conectar_banco():
     if "conn" not in st.session_state or not st.session_state.conn.is_connected():
         conn = mysql.connector.connect(
-            host='localhost', 
-            user='root', 
-            password='1234',
-            port=3306, 
-            database='censo_escolar'
+            host=st.secrets["DB_HOST"],
+            port=int(st.secrets["DB_PORT"]),
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            database=st.secrets["DB_NAME"],
+            auth_plugin = 'mysql_native_password',
         )
         # Armazena a conexão no estado da sessão
         st.session_state.conn = conn

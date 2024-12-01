@@ -7,11 +7,12 @@ st.title("Cadastro de usuário")
 # Conexão com o banco de dados
 def conectar_banco():
     return mysql.connector.connect(
-        host='localhost', 
-        user='root', 
-        password='1234',
-        port=3306, 
-        database='censo_escolar'
+        host=st.secrets["DB_HOST"],
+        port=int(st.secrets["DB_PORT"]),
+        user=st.secrets["DB_USER"],
+        password=st.secrets["DB_PASSWORD"],
+        database=st.secrets["DB_NAME"],
+        auth_plugin = 'mysql_native_password',
     )
 
 # Cabeçalho com o nome do usuário
