@@ -4,20 +4,22 @@ import mysql.connector
 import matplotlib.pyplot as plt
 
 def get_connection():
-    # Salvar o certificado `ca.pem` em um arquivo temporário
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(st.secrets["DB_SSL"].encode("utf-8"))
-        ssl_cert_path = tmp_file.name
-
-    # Criar conexão usando os secrets e o certificado SSL
-    return mysql.connector.connect(
-        host=st.secrets["DB_HOST"],
-        port=int(st.secrets["DB_PORT"]),
-        user=st.secrets["DB_USER"],
-        password=st.secrets["DB_PASSWORD"],
-        database=st.secrets["DB_NAME"],
-        ssl_ca=["DB_SSL"]
-    )
+    # Verifica se a conexão já existe e está ativa
+    if "conn" not in st.session_state or not st.session_state.conn.is_connected():
+        
+        # Criar conexão com o banco de dados usando os secrets
+        conn = mysql.connector.connect(
+            host=st.secrets["DB_HOST"],
+            port=int(st.secrets["DB_PORT"]),
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            database=st.secrets["DB_NAME"],
+            auth_plugin = 'mysql_native_password',
+        )
+        
+        st.session_state.conn = conn
+    
+    return st.session_state.conn
 
 # Query para obter os dados
 query = """
