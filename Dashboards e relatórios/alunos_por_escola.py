@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def get_connection():
     # Salvar o certificado `ca.pem` em um arquivo temporário
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+        tmp_file.write(st.secrets["DB_SSL"].encode("utf-8"))
         ssl_cert_path = tmp_file.name
 
     # Criar conexão usando os secrets e o certificado SSL

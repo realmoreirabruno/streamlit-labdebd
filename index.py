@@ -12,7 +12,7 @@ def conectar_banco():
     if "conn" not in st.session_state or not st.session_state.conn.is_connected():
         # Salvar o certificado `ca.pem` em um arquivo temporário
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            tmp_file.write(st.secrets["database"]["ssl_cert"].encode("utf-8"))
+            tmp_file.write(st.secrets["DB_SSL"].encode("utf-8"))
             ssl_cert_path = tmp_file.name
         
         # Criar conexão com o banco de dados usando os secrets
