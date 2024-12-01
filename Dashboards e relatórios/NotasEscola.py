@@ -7,8 +7,8 @@ if "conn" in st.session_state and st.session_state.conn:
     try:
         query = """
         SELECT e.NO_ENTIDADE, r.ideb_AI, r.ideb_AF, r.ideb_EM
-        FROM censo_escolar.escola_ideb r
-        JOIN censo_escolar.escola e ON e.CO_ENTIDADE = r.CO_ENTIDADE
+        FROM defaultdb.escola_ideb r
+        JOIN defaultdb.escola e ON e.CO_ENTIDADE = r.CO_ENTIDADE
         ORDER BY e.NO_ENTIDADE;
         """
         

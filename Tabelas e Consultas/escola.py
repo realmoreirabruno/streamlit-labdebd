@@ -11,21 +11,21 @@ if "conn" in st.session_state and st.session_state.conn:
             e.CO_ENTIDADE AS Codigo_Escola,
             (
                 SELECT COUNT(DISTINCT m.CO_PESSOA_FISICA)
-                FROM censo_escolar.matricula m
+                FROM defaultdb.matricula m
                 WHERE m.CO_ENTIDADE = e.CO_ENTIDADE
             ) AS Total_Alunos,
             (
                 SELECT COUNT(DISTINCT d.CO_PESSOA_FISICA)
-                FROM censo_escolar.docente d
+                FROM defaultdb.docente d
                 WHERE d.CO_ENTIDADE = e.CO_ENTIDADE
             ) AS Total_Professores,
             (
                 SELECT COUNT(DISTINCT t.ID_TURMA)
-                FROM censo_escolar.turma t
+                FROM defaultdb.turma t
                 WHERE t.CO_ENTIDADE = e.CO_ENTIDADE
             ) AS Total_Turmas
         FROM 
-            censo_escolar.escola e
+            defaultdb.escola e
         LIMIT 100;
         """
         
