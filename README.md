@@ -4,7 +4,7 @@ Projeto que tem como base a criação de um board no Streamlit com Python, que v
 ## Hospedagem
 
 Hospedagem da página em si:[Streamlit community cloud](https://streamlit.io/cloud) 
-Hospedagem do banco de dados (AWS): [Aiven](https://aiven.io/)
+Hospedagem do banco de dados em MySQL (AWS): [Aiven](https://aiven.io/)
 
 **Link para o streamlit:** [https://app-dashboard-educacional.streamlit.app/](https://app-labdebd.streamlit.app/)
 
